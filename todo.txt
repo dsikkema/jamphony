@@ -1,6 +1,7 @@
 Features
 	# commands to CRUD library books
 	# command: get books by author
+	# option: "--filter=abc" to get books like '%abc%'
 	
 Framework and tech debt
 	# build extensible CLI framework
@@ -15,16 +16,7 @@ Framework and tech debt
 		(also possible with activeRecord model, coupled to DB, if expose setId publicly or 
 		as package private).
 	
-	# Use builders, repositories, and collections?
-	
-		Client only uses repository, collection. Client cannot change entity ID.
-		
-		ID is set in constructor only: if you provide ID in constructor, you must also
-		provide every other value so that object is immediately saveable. Constructor only
-		called by builder, builder only called by repository and collection.
-		
-		Entity has two constructors: empty and with all attributes included.
-	
+	# implement options
 	# everything tested
 	
 	
