@@ -1,22 +1,20 @@
 Features
-	# commands to CRUD library books
-	# command: get books by author
-	# option: "--filter=abc" to get books like '%abc%'
 	
 Framework and tech debt
-	# build extensible CLI framework
-	
-		commands.json maps command names to command class names. Command classes must
-		implement command interface and provide execute method, which CLI framework calls.
-		
-		Each command calls to service layer, and service layer interacts with the ORM.
-	# Collections do filtered queries:
-		given attribute, comparison type (less than, equal to, and greater than), and comparisonValue
-		
-		(also possible with activeRecord model, coupled to DB, if expose setId publicly or 
-		as package private).
-	
-	# implement options
 	# everything tested
+	
+	# use singletons where appropriate
+	
+	# figure out how to merge/override/combine guice configuration modules
+		figure out how to override modules with guice... have one module provided by the 
+		CLI library, and another one by default package which can override.
+  
+		e.g. CLI fw provides a module that maps its interfaces etc but the default package
+		can add extra mapping to the module and override things
+		
+	# allow some kind of merging/combining command modules
+		
+		right now it allows allows one: you configure guice to map the command module 
+		interface to *your* command module implementation 
 	
 	

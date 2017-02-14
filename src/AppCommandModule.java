@@ -1,10 +1,9 @@
 import java.util.HashMap;
 
-import cli.CommandClass;
-import cli.CommandInterface;
-import cli.CommandModuleInterface;
+import console.CommandInterface;
+import console.CommandModuleInterface;
 
-public class LibraryCommandModule implements CommandModuleInterface {
+public class AppCommandModule implements CommandModuleInterface {
 
     /**
      * Here, return a map from command names to command class instances
@@ -16,7 +15,7 @@ public class LibraryCommandModule implements CommandModuleInterface {
         /**
          * populate commands
          */
-        commandMap.put("test-command", CommandClass.class);
+        commandMap.put("test-command", TestCommand.class);
         
         return commandMap;
     }
