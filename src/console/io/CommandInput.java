@@ -1,9 +1,7 @@
-package console.input;
+package console.io;
 
 import java.util.*;
 import java.util.Map;
-import java.util.Set;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 

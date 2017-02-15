@@ -1,17 +1,17 @@
 package console;
 
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
-import console.input.CommandInput;
-import console.input.UserConsoleInput;
+import console.io.CommandInput;
+import console.io.Output;
+import console.io.UserConsoleInput;
 
 public class ConsoleApplication {
     
     private final CommandRegistry commandRegistry;
     private final UserConsoleInput userInput;
-    private CommandInput commandInput;
+    private final CommandInput commandInput;
+    private final Output consoleOutput;
 
     /**
      * constructor deals with dependency initialization, including module map
@@ -20,11 +20,13 @@ public class ConsoleApplication {
     public ConsoleApplication(
             CommandRegistry commandRegistry,
             UserConsoleInput input,
-            CommandInput commandInput
+            CommandInput commandInput,
+            Output consoleOutput
     ) {
         this.commandRegistry = commandRegistry;
         this.userInput = input;
         this.commandInput = commandInput;
+        this.consoleOutput = consoleOutput;
     }
     
     /**
@@ -68,7 +70,7 @@ public class ConsoleApplication {
         }
         
         if (exitCode != 0) {
-            System.err.println("Command '" + commandName + "' failed");
+            consoleOutput.writeLnErr("Command '" + commandName + "' failed");
         }
         
         return exitCode;

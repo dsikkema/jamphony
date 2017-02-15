@@ -1,4 +1,4 @@
-package console.input;
+package console.io;
 
 public enum InputDataType {
     INT,

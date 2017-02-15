@@ -8,9 +8,5 @@ public class Run {
         Injector injector = Guice.createInjector(new AppGuiceModule());
         ConsoleApplication app = injector.getInstance(ConsoleApplication.class);
         app.run(args);
-        System.out.println("done");
-//        for (String s : args) {
-//            System.out.println(s);            
-//        }
     }
 }

@@ -29,13 +29,14 @@ public class CommandRegistry {
      */
     public CommandInterface getCommandInstance(String commandName) {
         
-        // TODO: check contains
+        if (!this.commandMap.containsKey(commandName)) {
+            throw new RuntimeException("Command '" + commandName + "' not found");
+        }
         try {
-//            return this.commandMap.get(commandName).newInstance();
             Class<? extends CommandInterface> classClass = this.commandMap.get(commandName);
             return injector.getInstance(classClass);
         } catch (Exception e) {
-            String errorMessage = "Could not found or could not build command class for command '" + commandName + "'";
+            String errorMessage = "Could not load command '" + commandName + "'";
             throw new RuntimeException(errorMessage, e);
         }
     }

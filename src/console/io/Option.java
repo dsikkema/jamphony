@@ -1,4 +1,4 @@
-package console.input;
+package console.io;
 
 public class Option {
     private String name;
