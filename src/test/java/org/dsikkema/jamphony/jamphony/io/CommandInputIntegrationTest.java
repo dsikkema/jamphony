@@ -159,7 +159,7 @@ public class CommandInputIntegrationTest {
 			.addEmptyFlag("emptyFlag");
 		
 		String argumentAfterFlagCommand = "test-command given 1 --givenFlag illegallyPlacedArg --stringOption=given --intOption=123 ";
-		testCaseList.add(new Object[] {argumentAfterFlagCommand, argumentAfterFlag, "Argument 'illegallyPlacedArg' provided after options or flags"});
+		testCaseList.add(new Object[] {argumentAfterFlagCommand, argumentAfterFlag, "Argument 'illegallyPlacedArg' is not given at the beginning of the input"});
 		
 		/**
 		 * argument illegally placed after option
@@ -174,7 +174,7 @@ public class CommandInputIntegrationTest {
 			.addEmptyFlag("emptyFlag");
 		
 		String argumentAfterOptionCommand = "test-command given 1 --stringOption=given illegallyPlacedArg --intOption=123 --givenFlag";
-		testCaseList.add(new Object[] {argumentAfterOptionCommand, argumentAfterOption, "Argument 'illegallyPlacedArg' provided after options or flags"});
+		testCaseList.add(new Object[] {argumentAfterOptionCommand, argumentAfterOption, "Argument 'illegallyPlacedArg' is not given at the beginning of the input"});
 		
 		/**
 		 * argument illegally placed between flags and options
@@ -189,7 +189,7 @@ public class CommandInputIntegrationTest {
 			.addEmptyFlag("emptyFlag");
 		
 		String argumentAfterFlagAndOptCommand = "test-command given 1 --stringOption=given --givenFlag illegallyPlacedArg --intOption=123 --givenFlag2";
-		testCaseList.add(new Object[] {argumentAfterFlagAndOptCommand, argumentAfterFlagAndOpt, "Argument 'illegallyPlacedArg' provided after options or flags"});
+		testCaseList.add(new Object[] {argumentAfterFlagAndOptCommand, argumentAfterFlagAndOpt, "Argument 'illegallyPlacedArg' is not given at the beginning of the input"});
 		
 		/**
 		 * multiple illegally placed arguments
@@ -205,7 +205,7 @@ public class CommandInputIntegrationTest {
 		
 		String multipleIllegallyPlacedArgsCommand = "test-command given 1 --stringOption=given illegallyPlacedArg " 
 				+ "--givenFlag illegallyPlacedArg --intOption=123 --givenFlag2 illegallyPlacedArg";
-		testCaseList.add(new Object[] {multipleIllegallyPlacedArgsCommand, multipleIllegallyPlacedArgs, "Argument 'illegallyPlacedArg' provided after options or flags"});
+		testCaseList.add(new Object[] {multipleIllegallyPlacedArgsCommand, multipleIllegallyPlacedArgs, "Argument 'illegallyPlacedArg' is not given at the beginning of the input"});
 		
 		/**
 		 * argument has wrong type
@@ -214,7 +214,7 @@ public class CommandInputIntegrationTest {
 		argumentWrongType.addIntArgument("intArg", 1);
 		
 		String argumentWrongTypeCommand = "test-command stringValue";
-		testCaseList.add(new Object[] {argumentWrongTypeCommand, argumentWrongType, "Argument 'intArg' with value 'stringValue' does not match expected type 'Int'"});
+		testCaseList.add(new Object[] {argumentWrongTypeCommand, argumentWrongType, "Entry 'intArg' with value 'stringValue' does not match expected type 'Int'"});
 		
 		/**
 		 * option has wrong type
@@ -223,7 +223,7 @@ public class CommandInputIntegrationTest {
 		optionWrongType.addIntOption("intOption", 1);
 		
 		String optionWrongTypeCommand = "test-command --intOption=stringValue";
-		testCaseList.add(new Object[] {optionWrongTypeCommand, optionWrongType, "Option 'intOption' with value 'stringValue' does not match expected type 'Int'"});
+		testCaseList.add(new Object[] {optionWrongTypeCommand, optionWrongType, "Entry 'intOption' with value 'stringValue' does not match expected type 'Int'"});
 		
 		return testCaseList.toArray(new Object[testCaseList.size()][]);
 	}

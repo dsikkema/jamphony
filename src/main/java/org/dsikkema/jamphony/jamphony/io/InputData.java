@@ -15,13 +15,8 @@ import java.util.Set;
  */
 public class InputData {
     
-    /**
-     * raw whitespace-separated strings given to CLI
-     */
-    private final List<String> rawArgs = new ArrayList<>();
-    
-    private final List<String> argumentValues = new ArrayList<>();
-    private final Map<String, String> optionValues = new HashMap<>();
+    private final Map<String, EntryData> argumentValues = new HashMap<>();
+    private final Map<String, EntryData> optionValues = new HashMap<>();
     private final Set<String> flagsProvided = new HashSet<>();
     
     private String commandName = "";
@@ -37,63 +32,77 @@ public class InputData {
     }
 
     /**
-     * This method is taken in by constructors, and guice is not yet configured
-     * to inject args from the main method in the constructor
-     * @throws InputException 
+     * An "entry" is either an argument, option, or flag. For option, it means the whole key-value pair
      */
-    private void initialize(String[] args) throws InputException {
-        // inject raw args
-        for (String argument : args ) {
-            this.rawArgs.add(argument);
-        }
+    private void initialize(String[] entries) throws InputException {
+    	if (entries.length == 0) {
+    		throw new InputException("Command name not given");
+    	}
         
         // process command name, options, args, and flags
-        boolean isArgumentAllowed = true;
         int equalSignIndex;
         String entry;
+        int index = 1;
+        this.commandName = entries[0];
         
-        // get command name
-        if (this.rawArgs.size() >= 1) {
-            this.commandName = this.rawArgs.get(0);
+        for ( ; index < this.inputDefinition.getArgumentCount() + 1 && index < entries.length; index++) {
+        	entry = entries[index];
+            if (!this.isArgument(entry)) {
+            	throw new InputException("Too few arguments given");
+            }
+            this.addArgument(index - 1, entry);
         }
         
-        for (int i = 1; i < this.rawArgs.size(); i++) {
-            entry = this.rawArgs.get(i);
-            if (this.isArgument(entry)) {
-                // Add argument
-                
-                // check arguments allowed
-                if (isArgumentAllowed) {
-                    this.argumentValues.add(entry);
-                } else {
-                    /**
-                     * enforce arguments coming before options and flags to enforce better UX, and 
-                     * to catch what is most likely a typo where something that should be an option
-                     * is interpreted as argument, e.g. one dash prefix instead of two 
-                     */
-                    throw new InputException("Argument '" + entry + "' provided after options or flags");
-                }
-            } else if (this.isEntryOption(entry)) {
+        if (index != this.inputDefinition.getArgumentCount() + 1) {
+        	// means that there are fewer entries than there are arguments required
+        	throw new InputException("Too few arguments given");
+        } else if (index < entries.length && this.isArgument(entries[index])) {
+        	throw new InputException("Too many arguments given");
+        }
+        
+        
+        for ( ; index < entries.length; index++) {
+        	entry = entries[index];
+        	if (this.isOption(entry)) {
                 // Add option
-                
-                isArgumentAllowed = false;
                 equalSignIndex = entry.indexOf("=");
-                this.optionValues.put(
+                this.addOption(
                     entry.substring(2, equalSignIndex), // option name
                     entry.substring(equalSignIndex + 1) // option value
                 );
             } else if (this.isFlag(entry)) {
                 // Add flag
-                isArgumentAllowed = false;
-                this.flagsProvided.add(entry.substring(2));
+                this.addFlag(entry.substring(2));
+            } else {
+            	// must be an argument
+            	throw new InputException("Argument '" + entry + "' is not given at the beginning of the input");
             }
         }
     }
     
-    private boolean isEntryOption(String entry) {
+    public void addArgument(int index, String value) throws InputException {
+    	ArgumentDefinition definition = this.inputDefinition.getArgumentDefinitionByIndex(index);
+    	this.argumentValues.put(definition.getName(), new EntryData(definition, value));
+    }
+    
+    public void addOption(String name, String value) throws InputException {
+    	OptionDefinition definition = this.inputDefinition.getOptionDefinitionByName(name);
+    	this.optionValues.put(name, new EntryData(definition, value));
+    }
+    
+    public void addFlag(String name) throws InputException {
+    	if (this.inputDefinition.isFlagDefined(name)) {
+    		this.flagsProvided.add(name);
+    	} else {
+    		throw new InputException("Flag '" + name + "' is not defined");
+    	}
+    }
+    
+    private boolean isOption(String entry) {
         return entry.substring(0, 2).equals("--")
                 && entry.indexOf("=") > 2; // equal sign must be present and option name must not be empty
     }
+    
     
     private boolean isFlag(String entry) {
         return entry.substring(0, 2).equals("--")
@@ -115,15 +124,16 @@ public class InputData {
         return commandName;
     }
 
-    public List<String> getRawArgs() {
-        return rawArgs;
-    }
-
-    public List<String> getArguments() {
+    /**
+     * TODO: remove these three methods because the unnecessarily expose internals.
+     * They're needed to do state-based unit testing, but we should use reflection
+     * in the test to expose the variables
+     */
+    public Map<String, EntryData> getArguments() {
         return argumentValues;
     }
 
-    public Map<String, String> getOptions() {
+    public Map<String, EntryData> getOptions() {
         return optionValues;
     }
     
@@ -131,7 +141,10 @@ public class InputData {
         return flagsProvided;
     }
     
-    public String getOption(String optionName) {
+    /**
+     * Data getters
+     */
+    public EntryData getOption(String optionName) {
         return this.optionValues.get(optionName);
     }
     
@@ -143,80 +156,15 @@ public class InputData {
         return this.flagsProvided.contains(flagName);
     }
     
-    private String getArgumentByIndex(int index) {
-    	return this.argumentValues.get(index);
-    }
-    
-    /**
-     * The following are convenience getters that enforce data types.
-     * 
-     * Probably the better option would be to use objects that represent
-     * the supplied values, then for the command itself to get a value it
-     * would first get the argument object from this class, and call 
-     * argumentObject.getStringValue(), etc, and have the object do type
-     * validation and throw needed exceptions. This would be similar to
-     * how you read json documents: jsonObject.getStringValue(), .getIntValue(),
-     * etc. Will leave this for later.
-     */
-    public int getIntArgument(String argumentName) {
-		ArgumentDefinition argument;
-		argument = this.inputDefinition.getArgumentDefinition(argumentName);
-		if (argument.getType() != Type.INT) {
-			throw new RuntimeException("Argument '" + argumentName + "' is not of type INT");
-		}
-		
-		return Integer.parseInt(this.getArgumentByIndex(argument.getIndex()));
-    }
-    
-    public String getStringArgument(String argumentName) {
-		ArgumentDefinition argument;
-		argument = this.inputDefinition.getArgumentDefinition(argumentName);
-		if (argument.getType() != Type.STRING) {
-			throw new RuntimeException("Argument '" + argumentName + "' is not of type STRING");
-		}
-		
-		return this.getArgumentByIndex(argument.getIndex());
-    }
-    
-    public int getIntOption(String optionName) {
-		OptionDefinition option;
-		option = this.inputDefinition.getOptionDefinition(optionName);
-		if (option.getType() != Type.INT) {
-			throw new RuntimeException("Option '" + optionName + "' is not of type INT");
-		}
-		
-		return Integer.parseInt(this.getOption(optionName));
-    }
-    
-    public String getStringOption(String optionName) {
-		OptionDefinition option;
-		option = this.inputDefinition.getOptionDefinition(optionName);
-		if (option.getType() != Type.STRING) {
-			throw new RuntimeException("Option '" + optionName + "' is not of type STRING");
-		}
-		
-		return this.getOption(optionName);
-    }
-    
-    public String getRawArgumentByIndex(int index) {
-    	if (this.argumentValues.size() <= index || index < 0) {
-    		throw new RuntimeException("There is no argument at index '" + index + "'");
-    	}
-    	return this.argumentValues.get(index);
-    }
-    
-    private boolean validate() {
-    	// TODO: implement
-    	return true;
+    public EntryData getArgument(String name) {
+    	return this.argumentValues.get(name);
     }
     
     public static class Factory {
     	
     	public InputData create(CommandInputDefinition inputDefinition, String[] args) throws InputException
     	{
-    		InputData inputData = new InputData(inputDefinition, args);
-			inputDefinition.validate(inputData);
-    		
+    		InputData inputData = new InputData(inputDefinition, args);    		
     		return inputData;
     	}
     }

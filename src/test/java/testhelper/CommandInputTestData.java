@@ -1,8 +1,6 @@
 package testhelper;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -13,6 +11,7 @@ import java.util.Map;
 
 import org.dsikkema.jamphony.jamphony.io.CommandInputDefinition;
 import org.dsikkema.jamphony.jamphony.io.InputData;
+import org.dsikkema.jamphony.jamphony.io.InputException;
 import org.dsikkema.jamphony.jamphony.io.Type;
 
 public class CommandInputTestData {
@@ -96,20 +95,20 @@ public class CommandInputTestData {
 		return inputDefinition;
 	}
 	
-	public void verifyProcessedInputData(InputData input) {
+	public void verifyProcessedInputData(InputData inputData) {
 		// verify args
 		for (Map.Entry<String, Object> entry : this.arguments) {
 			if (entry.getValue().getClass() == Integer.class) {
 				assertEquals(
 					String.format("Integer argument '%s' has the wrong value", entry.getKey()),
 					entry.getValue(),
-					input.getIntArgument(entry.getKey())
+					inputData.getArgument(entry.getKey()).getIntValue()
 				);
 			} else {
 				assertEquals(
 					String.format("String argument '%s' has the wrong value", entry.getKey()),
 					entry.getValue(),
-					input.getStringArgument(entry.getKey())
+					inputData.getArgument(entry.getKey()).getStringValue()
 				);
 			}
 		}
@@ -117,41 +116,41 @@ public class CommandInputTestData {
 		assertEquals(
 			"The wrong number of arguments was processed",
 			this.arguments.size(),
-			input.getArguments().size()
+			inputData.getArguments().size()
 		);
 		
 		// verify options
 		for (Map.Entry<String, String> entry : this.stringOptions.entrySet()) {
-			assertEquals(entry.getValue(), input.getStringOption(entry.getKey()));
+			assertEquals(entry.getValue(), inputData.getOption(entry.getKey()).getStringValue());
 		}
 		
 		for (Map.Entry<String, Integer> entry : this.intOptions.entrySet()) {
-			assertEquals(entry.getValue(), (Integer)input.getIntOption(entry.getKey()));
+			assertEquals(entry.getValue(), (Integer)inputData.getOption(entry.getKey()).getIntValue());
 		}
 		
 		assertEquals(
 			"The wrong number of options was processed",
 			this.intOptions.size() + this.stringOptions.size(),
-			input.getOptions().size()
+			inputData.getOptions().size()
 		);
 		
 		for (String option : this.optionsNotGiven.keySet()) {
-			assertFalse(input.isOptionProvided(option));
+			assertFalse(inputData.isOptionProvided(option));
 		}
 		
 		// verify flags
 		for (String flag : this.flags) {
-			assertTrue(input.isFlagSet(flag));
+			assertTrue(inputData.isFlagSet(flag));
 		}
 		
 		assertEquals(
 			"The wrong number of flags was processed",
 			this.flags.size(),
-			input.getFlags().size()
+			inputData.getFlags().size()
 		);
 
 		for (String flag : this.flagsNotGiven) {
-			assertFalse(input.isFlagSet(flag));
+			assertFalse(inputData.isFlagSet(flag));
 		}
 	}
 }

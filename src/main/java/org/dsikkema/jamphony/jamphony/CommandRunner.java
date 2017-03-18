@@ -42,7 +42,7 @@ public class CommandRunner {
      * Output, however, has no special dependency on the command and indeed we
      * may want to share it with whatever program is calling this runner.
      */ 
-    public int run(String[] args) {
+    public int run(String[] entries) {
         int exitCode = 1;
         CommandInterface command;
         String commandName = "";
@@ -50,7 +50,7 @@ public class CommandRunner {
         InputData inputData;
         
         try {
-            commandName = this.getCommandName(args);
+            commandName = this.getCommandName(entries);
             command = this.commandRegistry.getCommandInstance(commandName);
             inputDefinition = this.inputDefinitionFactory.create();
             command.populateInputDefinition(inputDefinition);
@@ -58,7 +58,7 @@ public class CommandRunner {
             /**
              * Note: input validation occurs inside the input data factory
              */
-			inputData = this.inputDataFactory.create(inputDefinition, args);
+			inputData = this.inputDataFactory.create(inputDefinition, entries);
             exitCode = command.execute(inputData);
 		} catch (InputException e) {
 			/**
@@ -106,12 +106,12 @@ public class CommandRunner {
     	return argsWithEscapersRemoved;
     }
     
-    private String getCommandName(String[] args) throws InputException {
+    private String getCommandName(String[] entries) throws InputException {
     	// check length of args
-    	if (args.length < 1 || args[0].isEmpty()) {
+    	if (entries.length < 1 || entries[0].isEmpty()) {
     		throw new InputException("No command given");
     	}
     	
-    	return args[0];
+    	return entries[0];
     }
 }

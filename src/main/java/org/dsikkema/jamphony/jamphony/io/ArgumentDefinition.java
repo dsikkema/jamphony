@@ -1,25 +1,16 @@
 package org.dsikkema.jamphony.jamphony.io;
 
-public class ArgumentDefinition {
+public class ArgumentDefinition  extends EntryDefinition {
     private String name;
     private int index;
     private Type type;
 
     public ArgumentDefinition(String name, int index, Type type) {
-        this.name = name;
-        this.index = index;
-        this.type = type;
+        super(name, type);
+    	this.index = index;
     }
     
-    public String getName() {
-        return name;
-    }
-
     public int getIndex() {
-        return index;
-    }
-
-    public Type getType() {
-        return type;
+    	return this.index;
     }
 }

@@ -1,19 +1,10 @@
 package org.dsikkema.jamphony.jamphony.io;
 
-public class OptionDefinition {
-    private String name;
-    private Type type;
+public class OptionDefinition extends EntryDefinition {
 
-    public OptionDefinition(String name, Type type) {
-        this.name = name;
-        this.type = type;
-    }
-    
-    public String getName() {
-        return name;
-    }
+	public OptionDefinition(String name, Type type) {
+		super(name, type);
+		// TODO Auto-generated constructor stub
+	}
 
-    public Type getType() {
-        return type;
-    }
 }
