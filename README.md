@@ -1,6 +1,8 @@
 # Jamphony
 Because `symfony` in `ja`va.
 
+**For documentation and to see examples of usage**, check out [this sample project](https://github.com/dsikkema/jamphony-sample-project)
+
 ## What's this
 
 A framework for projects composed of console commands. It lets you easily define your input and command logic, and then handles 
